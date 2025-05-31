@@ -6,13 +6,13 @@ namespace Sirix\CsFixerConfig\Tests;
 
 use LogicException;
 use PhpCsFixer\Config;
+use PhpCsFixer\Finder;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Sirix\CsFixerConfig\ConfigBuilder;
 use SplFileInfo;
 use Traversable;
 
-use function array_diff_assoc;
 use function array_map;
 use function iterator_to_array;
 use function realpath;
@@ -102,11 +102,8 @@ class ConfigBuilderTest extends TestCase
             ->getRules()
         ;
 
-        $expected = [
-            '@PER-CS2.0' => true,
-        ];
-
-        self::assertEmpty(array_diff_assoc($expected, $rules));
+        self::assertTrue(isset($rules['@PER-CS2.0']));
+        self::assertTrue($rules['@PER-CS2.0']);
     }
 
     #[Test]
@@ -118,11 +115,34 @@ class ConfigBuilderTest extends TestCase
             ->getRules()
         ;
 
-        $expected = [
-            '@PER-CS2.0' => false,
-        ];
+        self::assertTrue(isset($rules['@PER-CS2.0']));
+        self::assertFalse($rules['@PER-CS2.0']);
+    }
 
-        self::assertEmpty(array_diff_assoc($expected, $rules));
+    #[Test]
+    public function itSetsFinderAndAccessesDirectly(): void
+    {
+        $finder = new Finder();
+        $finder->in([__DIR__ . '/../test']);
+
+        $configFinder = $this->builder->setFinder($finder)->getConfig()->getFinder();
+        $items = iterator_to_array($configFinder);
+
+        self::assertNotEmpty($items);
+        foreach ($items as $file) {
+            self::assertStringContainsString(__DIR__, $file->getRealPath());
+        }
+    }
+
+    #[Test]
+    public function itSetsCustomFinderInstance(): void
+    {
+        $finder = new Finder();
+        $finder->in([__DIR__ . '/../src']);
+
+        $config = $this->builder->setFinder($finder)->getConfig();
+
+        self::assertSame($finder, $config->getFinder());
     }
 
     /**

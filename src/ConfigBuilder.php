@@ -127,6 +127,13 @@ final class ConfigBuilder
         return $this->config->setRules($this->rules);
     }
 
+    public function setFinder(Finder $finder): self
+    {
+        $this->config->setFinder($finder);
+
+        return $this;
+    }
+
     private function getFinder(): Finder
     {
         return $this->config->getFinder();
