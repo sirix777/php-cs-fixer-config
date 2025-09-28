@@ -27,7 +27,7 @@ final class ConfigBuilder
     private const DEFAULT_CONFIG_NAME = 'Sirix';
 
     private array $rules = [
-        '@PER-CS2.0' => true,
+        '@PER-CS3x0' => true,
         '@PhpCsFixer' => true,
         'array_syntax' => ['syntax' => 'short'],
         'array_indentation' => true,

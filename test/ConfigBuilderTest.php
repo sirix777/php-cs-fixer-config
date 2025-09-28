@@ -102,8 +102,8 @@ class ConfigBuilderTest extends TestCase
             ->getRules()
         ;
 
-        self::assertTrue(isset($rules['@PER-CS2.0']));
-        self::assertTrue($rules['@PER-CS2.0']);
+        self::assertTrue(isset($rules['@PER-CS3x0']));
+        self::assertTrue($rules['@PER-CS3x0']);
     }
 
     #[Test]
