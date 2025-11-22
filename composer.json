@@ -5,15 +5,15 @@
     "type": "library",
     "authors": [
         {
-            "name": "Petr Romancevic",
+            "name": "Pjotrs Romancevics",
             "email": "sirix@inbox.lv"
         }
     ],
     "require": {
-        "php": "^8.1 || ^8.2 || ^8.3 || ^8.4",
-        "friendsofphp/php-cs-fixer": "^3.88",
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
+        "friendsofphp/php-cs-fixer": "^3.90",
         "gordinskiy/line-length-checker": "^0.0.2",
-        "pedrotroller/php-cs-custom-fixer": "^2.35"
+        "pedrotroller/php-cs-custom-fixer": "^2.34"
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.48",

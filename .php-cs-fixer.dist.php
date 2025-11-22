@@ -8,4 +8,5 @@ return ConfigBuilder::create()
     ->inDir(__DIR__.'/src')
     ->inDir(__DIR__ . '/test')
     ->getConfig()
+    ->setUnsupportedPhpVersionAllowed(true)
 ;

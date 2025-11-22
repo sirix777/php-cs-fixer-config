@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 22/11/2025
+
+### Changed
+- Updated PHP requirement to `~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0`
+- Updated `friendsofphp/php-cs-fixer` to `^3.90`
+- Adjusted `pedrotroller/php-cs-custom-fixer` constraint to `^2.34`
+- Refreshed CI workflow configuration in `.github/workflows/php.yml`
+- Tweaked PHPUnit config `phpunit.xml.dist`
+- Minor updates to `.php-cs-fixer.dist.php`
+
 ## [1.1.1] - 28/09/2025
 
 ### Changed
