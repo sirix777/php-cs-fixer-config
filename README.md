@@ -1,5 +1,7 @@
 Wrapper with pre-defined rules around the [PHP-CS-Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer) package - A tool to automatically fix PHP Coding Standards issues.
 
+[![Latest Stable Version](http://poser.pugx.org/sirix/php-cs-fixer-config/v)](https://packagist.org/packages/sirix/php-cs-fixer-config) [![Total Downloads](http://poser.pugx.org/sirix/php-cs-fixer-config/downloads)](https://packagist.org/packages/sirix/php-cs-fixer-config) [![Latest Unstable Version](http://poser.pugx.org/sirix/php-cs-fixer-config/v/unstable)](https://packagist.org/packages/sirix/php-cs-fixer-config) [![License](http://poser.pugx.org/sirix/php-cs-fixer-config/license)](https://packagist.org/packages/sirix/php-cs-fixer-config) [![PHP Version Require](http://poser.pugx.org/sirix/php-cs-fixer-config/require/php)](https://packagist.org/packages/sirix/php-cs-fixer-config)
+
 ## Installation
 
 
