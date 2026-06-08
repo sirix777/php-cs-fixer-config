@@ -10,6 +10,9 @@ use PhpCsFixer\Finder;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Sirix\CsFixerConfig\ConfigBuilder;
+use Sirix\CsFixerConfig\Fixer\ArrayListItemNewlineFixer;
+use Sirix\CsFixerConfig\Fixer\ArrayOpenerAndCloserNewlineFixer;
+use Sirix\CsFixerConfig\Fixer\StandaloneLineInMultilineArrayFixer;
 use SplFileInfo;
 use Traversable;
 
@@ -104,13 +107,39 @@ class ConfigBuilderTest extends TestCase
 
         self::assertTrue(isset($rules['@PER-CS3x0']));
         self::assertTrue($rules['@PER-CS3x0']);
+        self::assertTrue(isset($rules[ArrayOpenerAndCloserNewlineFixer::getRuleName()]));
+        self::assertTrue($rules[ArrayOpenerAndCloserNewlineFixer::getRuleName()]);
+        self::assertTrue(isset($rules[ArrayListItemNewlineFixer::getRuleName()]));
+        self::assertTrue($rules[ArrayListItemNewlineFixer::getRuleName()]);
+        self::assertTrue(isset($rules[StandaloneLineInMultilineArrayFixer::getRuleName()]));
+        self::assertTrue($rules[StandaloneLineInMultilineArrayFixer::getRuleName()]);
+    }
+
+    #[Test]
+    public function itMapsSymplifyRuleNames(): void
+    {
+        $rules = $this->builder
+            ->setRules([
+                'Symplify\CodingStandard\Fixer\ArrayNotation\ArrayOpenerAndCloserNewlineFixer'    => true,
+                'Symplify\CodingStandard\Fixer\ArrayNotation\ArrayListItemNewlineFixer'           => true,
+                'Symplify\CodingStandard\Fixer\ArrayNotation\StandaloneLineInMultilineArrayFixer' => true,
+            ])
+            ->getConfig()
+            ->getRules()
+        ;
+
+        self::assertTrue($rules[ArrayOpenerAndCloserNewlineFixer::getRuleName()]);
+        self::assertTrue($rules[ArrayListItemNewlineFixer::getRuleName()]);
+        self::assertTrue($rules[StandaloneLineInMultilineArrayFixer::getRuleName()]);
     }
 
     #[Test]
     public function itOverridesDefaultRules(): void
     {
         $rules = $this->builder
-            ->setRules(['@PER-CS2.0' => false])
+            ->setRules([
+                '@PER-CS2.0' => false,
+            ])
             ->getConfig()
             ->getRules()
         ;
@@ -126,7 +155,7 @@ class ConfigBuilderTest extends TestCase
         $finder->in([__DIR__ . '/../test']);
 
         $configFinder = $this->builder->setFinder($finder)->getConfig()->getFinder();
-        $items = iterator_to_array($configFinder);
+        $items        = iterator_to_array($configFinder);
 
         self::assertNotEmpty($items);
         foreach ($items as $file) {
