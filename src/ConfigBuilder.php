@@ -11,27 +11,9 @@ use PedroTroller\CS\Fixer\CodingStyle\LineBreakBetweenStatementsFixer;
 use PhpCsFixer\Config;
 use PhpCsFixer\ConfigInterface;
 use PhpCsFixer\Finder;
-use PhpCsFixer\Fixer\FixerInterface;
-use PhpCsFixer\WhitespacesFixerConfig;
 use Sirix\CsFixerConfig\Fixer\ArrayListItemNewlineFixer;
 use Sirix\CsFixerConfig\Fixer\ArrayOpenerAndCloserNewlineFixer;
 use Sirix\CsFixerConfig\Fixer\StandaloneLineInMultilineArrayFixer;
-use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayListItemNewlineFixer as SymplifyArrayListItemNewlineFixer;
-use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayOpenerAndCloserNewlineFixer as SymplifyArrayOpenerAndCloserNewlineFixer;
-use Symplify\CodingStandard\Fixer\ArrayNotation\StandaloneLineInMultilineArrayFixer as SymplifyStandaloneLineInMultilineArrayFixer;
-use Symplify\CodingStandard\TokenRunner\Analyzer\FixerAnalyzer\ArrayAnalyzer;
-use Symplify\CodingStandard\TokenRunner\Analyzer\FixerAnalyzer\BlockFinder;
-use Symplify\CodingStandard\TokenRunner\Analyzer\FixerAnalyzer\CallAnalyzer;
-use Symplify\CodingStandard\TokenRunner\Analyzer\FixerAnalyzer\IndentDetector;
-use Symplify\CodingStandard\TokenRunner\Analyzer\FixerAnalyzer\TokenSkipper;
-use Symplify\CodingStandard\TokenRunner\Arrays\ArrayItemNewliner;
-use Symplify\CodingStandard\TokenRunner\TokenFinder;
-use Symplify\CodingStandard\TokenRunner\Transformer\FixerTransformer\LineLengthCloserTransformer;
-use Symplify\CodingStandard\TokenRunner\Transformer\FixerTransformer\LineLengthOpenerTransformer;
-use Symplify\CodingStandard\TokenRunner\Transformer\FixerTransformer\TokensNewliner;
-use Symplify\CodingStandard\TokenRunner\Traverser\ArrayBlockInfoFinder;
-use Symplify\CodingStandard\TokenRunner\Whitespace\IndentResolver;
-use Symplify\CodingStandard\TokenRunner\Wrapper\FixerWrapper\ArrayWrapperFactory;
 
 use function array_merge;
 use function call_user_func_array;
@@ -209,64 +191,14 @@ final class ConfigBuilder
             return;
         }
 
-        $this->config->registerCustomFixers(array_merge(
-            [
-                new LineLengthLimit(),
-                new LineBreakBetweenMethodArgumentsFixer(),
-                new LineBreakBetweenStatementsFixer(),
-            ],
-            $this->createSymplifyArrayFixers(),
-        ));
+        $this->config->registerCustomFixers([
+            new LineLengthLimit(),
+            new LineBreakBetweenMethodArgumentsFixer(),
+            new LineBreakBetweenStatementsFixer(),
+            new ArrayOpenerAndCloserNewlineFixer(),
+            new ArrayListItemNewlineFixer(),
+            new StandaloneLineInMultilineArrayFixer(),
+        ]);
         $this->customFixersRegistered = true;
-    }
-
-    /**
-     * @return array<FixerInterface>
-     */
-    private function createSymplifyArrayFixers(): array
-    {
-        $whitespacesFixerConfig = new WhitespacesFixerConfig(
-            $this->config->getIndent(),
-            $this->config->getLineEnding(),
-        );
-        $blockFinder       = new BlockFinder();
-        $tokenSkipper      = new TokenSkipper($blockFinder);
-        $arrayAnalyzer     = new ArrayAnalyzer($tokenSkipper);
-        $arrayItemNewliner = new ArrayItemNewliner(
-            $arrayAnalyzer,
-            $whitespacesFixerConfig,
-        );
-
-        return [
-            new ArrayOpenerAndCloserNewlineFixer(new SymplifyArrayOpenerAndCloserNewlineFixer(
-                new ArrayBlockInfoFinder($blockFinder),
-                $whitespacesFixerConfig,
-                $arrayAnalyzer,
-            )),
-            new ArrayListItemNewlineFixer(new SymplifyArrayListItemNewlineFixer(
-                $arrayItemNewliner,
-                $arrayAnalyzer,
-                new ArrayBlockInfoFinder($blockFinder),
-            )),
-            new StandaloneLineInMultilineArrayFixer(new SymplifyStandaloneLineInMultilineArrayFixer(
-                new ArrayWrapperFactory($tokenSkipper),
-                new TokensNewliner(
-                    new LineLengthCloserTransformer(
-                        new CallAnalyzer(),
-                        new TokenFinder(),
-                    ),
-                    $tokenSkipper,
-                    new LineLengthOpenerTransformer(
-                        new CallAnalyzer(),
-                    ),
-                    $whitespacesFixerConfig,
-                    new IndentResolver(
-                        new IndentDetector($whitespacesFixerConfig),
-                        $whitespacesFixerConfig,
-                    ),
-                ),
-                $blockFinder,
-            )),
-        ];
     }
 }

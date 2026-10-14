@@ -4,58 +4,77 @@ declare(strict_types=1);
 
 namespace Sirix\CsFixerConfig\Fixer;
 
-use PhpCsFixer\Fixer\FixerInterface;
+use PhpCsFixer\FixerDefinition\FixerDefinition;
 use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
+use PhpCsFixer\Tokenizer\Analyzer\WhitespacesAnalyzer;
 use PhpCsFixer\Tokenizer\Tokens;
 use SplFileInfo;
-use Symplify\CodingStandard\Fixer\ArrayNotation\StandaloneLineInMultilineArrayFixer as SymplifyStandaloneLineInMultilineArrayFixer;
 
-/**
- * Adapter for PhpCsFixer-compatible custom fixer naming.
- */
-final class StandaloneLineInMultilineArrayFixer implements FixerInterface
+use function array_reverse;
+use function count;
+use function str_contains;
+
+/** Array formatting adapted from symplify/coding-standard (MIT); see LICENSE. */
+final class StandaloneLineInMultilineArrayFixer extends AbstractArrayNewlineFixer
 {
     public const RULE_NAME = 'Symplify/standalone_line_in_multiline_array';
-
-    public function __construct(private readonly SymplifyStandaloneLineInMultilineArrayFixer $fixer) {}
 
     public static function getRuleName(): string
     {
         return self::RULE_NAME;
     }
 
-    public function isCandidate(Tokens $tokens): bool
-    {
-        return $this->fixer->isCandidate($tokens);
-    }
-
-    public function isRisky(): bool
-    {
-        return $this->fixer->isRisky();
-    }
-
-    public function fix(SplFileInfo $file, Tokens $tokens): void
-    {
-        $this->fixer->fix($file, $tokens);
-    }
-
     public function getDefinition(): FixerDefinitionInterface
     {
-        return $this->fixer->getDefinition();
-    }
-
-    public function getName(): string
-    {
-        return self::RULE_NAME;
+        return new FixerDefinition('Keyed arrays must have one item per line.', []);
     }
 
     public function getPriority(): int
     {
-        return $this->fixer->getPriority();
+        return 5;
     }
 
-    public function supports(SplFileInfo $file): bool
+    protected function applyFix(SplFileInfo $file, Tokens $tokens): void
     {
-        return $this->fixer->supports($file);
+        for ($i = 0; $i < $tokens->count(); ++$i) {
+            if (! $this->isArray($tokens, $i)) {
+                continue;
+            }
+
+            $array = $this->getArrayInfo($tokens, $i);
+
+            // Preserve the legacy traversal: stop at lists and standalone single-item arrays.
+            if ([] === $array['arrows']) {
+                return;
+            }
+
+            if (1 === count($array['arrows'])) {
+                $value    = $tokens->getNextNonWhitespace($array['arrows'][0]);
+                $previous = $tokens->getPrevMeaningfulToken($array['start']);
+
+                if (! $this->isArray($tokens, $value) && (null === $previous || ! $tokens[$previous]->isGivenKind(T_DOUBLE_ARROW))) {
+                    return;
+                }
+            }
+
+            $lineEnding     = $this->whitespacesConfig->getLineEnding();
+            $indent         = WhitespacesAnalyzer::detectIndent($tokens, $array['start']);
+            $itemWhitespace = $lineEnding . $indent . $this->whitespacesConfig->getIndent();
+            $tokens->ensureWhitespaceAtIndex($array['end'] - 1, 1, $lineEnding . $indent);
+
+            foreach (array_reverse($array['commas']) as $comma) {
+                if (str_contains($tokens[$comma + 1]->getContent(), $lineEnding)) {
+                    continue;
+                }
+
+                if (isset($tokens[$comma + 2]) && $tokens[$comma + 2]->isComment()) {
+                    continue;
+                }
+
+                $tokens->ensureWhitespaceAtIndex($comma + 1, 0, $itemWhitespace);
+            }
+
+            $tokens->ensureWhitespaceAtIndex($array['start'] + 1, 0, $itemWhitespace);
+        }
     }
 }

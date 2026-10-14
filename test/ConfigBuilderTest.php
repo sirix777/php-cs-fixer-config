@@ -7,6 +7,10 @@ namespace Sirix\CsFixerConfig\Tests;
 use LogicException;
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
+use PhpCsFixer\FixerFactory;
+use PhpCsFixer\RuleSet\RuleSet;
+use PhpCsFixer\Tokenizer\Tokens;
+use PhpCsFixer\WhitespacesFixerConfig;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Sirix\CsFixerConfig\ConfigBuilder;
@@ -131,6 +135,53 @@ class ConfigBuilderTest extends TestCase
         self::assertTrue($rules[ArrayOpenerAndCloserNewlineFixer::getRuleName()]);
         self::assertTrue($rules[ArrayListItemNewlineFixer::getRuleName()]);
         self::assertTrue($rules[StandaloneLineInMultilineArrayFixer::getRuleName()]);
+    }
+
+    #[Test]
+    public function itFormatsArraysWithTheRegisteredFixers(): void
+    {
+        $config  = $this->builder->getConfig();
+        $factory = (new FixerFactory())
+            ->registerBuiltInFixers()
+            ->registerCustomFixers($config->getCustomFixers())
+            ->useRuleSet(new RuleSet($config->getRules()))
+            ->setWhitespacesConfig(new WhitespacesFixerConfig("\t", "\r\n"))
+        ;
+        $tokens = Tokens::fromCode("<?php\r\ndeclare(strict_types=1);\r\n\r\n\$a = ['one' => 1, 'two' => 2];\r\n");
+
+        foreach ($factory->getFixers() as $fixer) {
+            $fixer->fix(new SplFileInfo('fixture.php'), $tokens);
+            $tokens->clearEmptyTokens();
+        }
+
+        self::assertSame(
+            "<?php\r\n\r\ndeclare(strict_types=1);\r\n\r\n\$a = [\r\n\t'one' => 1,\r\n\t'two' => 2,\r\n];\r\n",
+            $tokens->generateCode(),
+        );
+    }
+
+    #[Test]
+    public function itDisablesArrayFormattingThroughLegacyAliases(): void
+    {
+        $config = $this->builder->setRules([
+            'Symplify\CodingStandard\Fixer\ArrayNotation\ArrayOpenerAndCloserNewlineFixer'    => false,
+            'Symplify\CodingStandard\Fixer\ArrayNotation\ArrayListItemNewlineFixer'           => false,
+            'Symplify\CodingStandard\Fixer\ArrayNotation\StandaloneLineInMultilineArrayFixer' => false,
+        ])->getConfig();
+        $factory = (new FixerFactory())
+            ->registerBuiltInFixers()
+            ->registerCustomFixers($config->getCustomFixers())
+            ->useRuleSet(new RuleSet($config->getRules()))
+        ;
+        $input  = "<?php\n\ndeclare(strict_types=1);\n\n\$a = ['one' => 1, 'two' => 2];\n";
+        $tokens = Tokens::fromCode($input);
+
+        foreach ($factory->getFixers() as $fixer) {
+            $fixer->fix(new SplFileInfo('fixture.php'), $tokens);
+            $tokens->clearEmptyTokens();
+        }
+
+        self::assertSame($input, $tokens->generateCode());
     }
 
     #[Test]

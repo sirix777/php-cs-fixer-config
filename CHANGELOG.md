@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-10-14
+
+### Added
+- Added a project MIT license with attribution for code adapted from Symplify
+- Added array formatting regression tests, including nested values, comments, whitespace configuration, and idempotence
+
+### Changed
+- Replaced the abandoned `symplify/coding-standard` dependency with local array fixers
+- Preserved the `Symplify/*` rule names and legacy class-name aliases
+
+### Fixed
+- Array parsing now leaves nested expressions such as `match` arms intact
+- Avoided deprecated tokenizer constants while retaining compatibility with PHP-CS-Fixer 3.90
+
 ## [1.2.0] - 2026-06-08
 
 ### Added

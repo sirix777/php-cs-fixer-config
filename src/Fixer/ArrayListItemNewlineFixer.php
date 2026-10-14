@@ -4,58 +4,60 @@ declare(strict_types=1);
 
 namespace Sirix\CsFixerConfig\Fixer;
 
-use PhpCsFixer\Fixer\FixerInterface;
+use PhpCsFixer\FixerDefinition\FixerDefinition;
 use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\Tokenizer\Tokens;
 use SplFileInfo;
-use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayListItemNewlineFixer as SymplifyArrayListItemNewlineFixer;
 
-/**
- * Adapter for PhpCsFixer-compatible custom fixer naming.
- */
-final class ArrayListItemNewlineFixer implements FixerInterface
+use function array_reverse;
+use function str_contains;
+
+/** Array formatting adapted from symplify/coding-standard (MIT); see LICENSE. */
+final class ArrayListItemNewlineFixer extends AbstractArrayNewlineFixer
 {
     public const RULE_NAME = 'Symplify/array_list_item_newline';
-
-    public function __construct(private readonly SymplifyArrayListItemNewlineFixer $fixer) {}
 
     public static function getRuleName(): string
     {
         return self::RULE_NAME;
     }
 
-    public function isCandidate(Tokens $tokens): bool
-    {
-        return $this->fixer->isCandidate($tokens);
-    }
-
-    public function isRisky(): bool
-    {
-        return $this->fixer->isRisky();
-    }
-
-    public function fix(SplFileInfo $file, Tokens $tokens): void
-    {
-        $this->fixer->fix($file, $tokens);
-    }
-
     public function getDefinition(): FixerDefinitionInterface
     {
-        return $this->fixer->getDefinition();
-    }
-
-    public function getName(): string
-    {
-        return self::RULE_NAME;
+        return new FixerDefinition('Keyed array items must be on separate lines.', []);
     }
 
     public function getPriority(): int
     {
-        return $this->fixer->getPriority();
+        return 40;
     }
 
-    public function supports(SplFileInfo $file): bool
+    protected function applyFix(SplFileInfo $file, Tokens $tokens): void
     {
-        return $this->fixer->supports($file);
+        for ($i = $tokens->count() - 1; $i >= 0; --$i) {
+            if (! $this->isArray($tokens, $i)) {
+                continue;
+            }
+
+            $array = $this->getArrayInfo($tokens, $i);
+
+            if ([] === $array['arrows']) {
+                continue;
+            }
+
+            foreach (array_reverse($array['commas']) as $comma) {
+                if (str_contains($tokens[$comma + 1]->getContent(), "\n")) {
+                    continue;
+                }
+
+                $next = $tokens->getNonWhitespaceSibling($comma, 1, " \t\r\0\x0B");
+
+                if (null !== $next && $tokens[$next]->isGivenKind(T_COMMENT)) {
+                    continue;
+                }
+
+                $tokens->ensureWhitespaceAtIndex($comma + 1, 0, $this->whitespacesConfig->getLineEnding());
+            }
+        }
     }
 }

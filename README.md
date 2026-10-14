@@ -25,6 +25,13 @@ composer req --dev --working-dir=tools/php-cs-fixer sirix/php-cs-fixer-config
     
 ### Configuration
 
+The array formatting rules are implemented by this package and do not require
+`symplify/coding-standard`. The existing `Symplify/*` rule names and Symplify
+class-name aliases remain supported for compatibility.
+
+This package is licensed under the [MIT License](LICENSE), including attribution
+for the array formatting code adapted from Symplify.
+
 1. Create PHP file and name it `.php-cs-fixer.dist.php` and place it inside root directory of project. It will be recognized by PHP CS Fixer automatically.
 
 2. Contents of file should look like this:
