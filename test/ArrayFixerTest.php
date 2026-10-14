@@ -101,6 +101,12 @@ final class ArrayFixerTest extends TestCase
             "<?php \$a = [\n'nested' => [\n'one' => 1, 'two' => 2\n], 'list' => [1, 2]\n];",
         ];
 
+        yield 'legacy newline before scalar and nested keyed array' => [
+            ArrayOpenerAndCloserNewlineFixer::class,
+            "<?php \$a = ['one' => 1, 'two' => [3, ['four' => 4]]];",
+            "<?php \$a = [\n'one' => 1, 'two' => [\n3, [\n'four' => 4\n]]\n];",
+        ];
+
         yield 'existing multiline layout' => [
             StandaloneLineInMultilineArrayFixer::class,
             "<?php\n\$a = [\n    'one' => 1, 'two' => 2,\n];",

@@ -11,6 +11,7 @@ use PhpCsFixer\FixerFactory;
 use PhpCsFixer\RuleSet\RuleSet;
 use PhpCsFixer\Tokenizer\Tokens;
 use PhpCsFixer\WhitespacesFixerConfig;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Sirix\CsFixerConfig\ConfigBuilder;
@@ -21,7 +22,9 @@ use SplFileInfo;
 use Traversable;
 
 use function array_map;
+use function file_get_contents;
 use function iterator_to_array;
+use function json_decode;
 use function realpath;
 
 /**
@@ -158,6 +161,40 @@ class ConfigBuilderTest extends TestCase
             "<?php\r\n\r\ndeclare(strict_types=1);\r\n\r\n\$a = [\r\n\t'one' => 1,\r\n\t'two' => 2,\r\n];\r\n",
             $tokens->generateCode(),
         );
+    }
+
+    #[DataProvider('legacyFormattingCases')]
+    public function testPreservesVersion120Formatting(string $input, string $expected): void
+    {
+        $config = $this->builder->getConfig();
+
+        for ($pass = 0; $pass < 2; ++$pass) {
+            Tokens::clearCache();
+            $tokens  = Tokens::fromCode($input);
+            $factory = (new FixerFactory())
+                ->registerBuiltInFixers()
+                ->registerCustomFixers($config->getCustomFixers())
+                ->useRuleSet(new RuleSet($config->getRules()))
+            ;
+
+            foreach ($factory->getFixers() as $fixer) {
+                $fixer->fix(new SplFileInfo('fixture.php'), $tokens);
+                $tokens->clearEmptyTokens();
+            }
+
+            $input = $tokens->generateCode();
+            self::assertSame($expected, $input);
+        }
+    }
+
+    /**
+     * Golden outputs captured with version 1.2.0 for the six consumer equivalence examples.
+     *
+     * @return array<string, array{string, string}>
+     */
+    public static function legacyFormattingCases(): array
+    {
+        return json_decode(file_get_contents(__DIR__ . '/fixtures/formatting-1.2.0.json'), true, 512, JSON_THROW_ON_ERROR);
     }
 
     #[Test]

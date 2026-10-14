@@ -1,0 +1,26 @@
+{
+    "nested.php": [
+        "<?php\ndeclare(strict_types=1);\n$a = ['one' => [1, 2], 'two' => [3, ['four' => 4]]];\n",
+        "<?php\n\ndeclare(strict_types=1);\n$a = [\n    'one' => [1, 2],\n    'two' => [\n        3, [\n            'four' => 4,\n        ]],\n];\n"
+    ],
+    "multiline.php": [
+        "<?php\n$a = [\n'one' => 1, 'two' => [\n2, 3\n],\n];\n",
+        "<?php\n\ndeclare(strict_types=1);\n$a = [\n    'one' => 1,\n    'two' => [\n        2, 3,\n    ],\n];\n"
+    ],
+    "comments.php": [
+        "<?php\n$a = [\n// opener comment\n'one' => 1, /* between */ 'two' => [2, 3],\n// trailing comment\n];\n",
+        "<?php\n\ndeclare(strict_types=1);\n$a = [\n    // opener comment\n    'one' => 1, /* between */ 'two' => [2, 3],\n    // trailing comment\n];\n"
+    ],
+    "empty-single.php": [
+        "<?php\n$a = [];\n$b = [1];\n$c = ['a', 'b'];\n",
+        "<?php\n\ndeclare(strict_types=1);\n$a = [];\n$b = [1];\n$c = ['a', 'b'];\n"
+    ],
+    "long.php": [
+        "<?php\n$a = ['abcdefghijklmnopqrstuvwxyz' => ['abcdefghijklmnopqrstuvwxyz' => 1, 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz' => [1, 2, 3]], 'other' => 4];\n",
+        "<?php\n\ndeclare(strict_types=1);\n$a = [\n    'abcdefghijklmnopqrstuvwxyz' => [\n        'abcdefghijklmnopqrstuvwxyz'                           => 1,\n        'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz' => [1, 2, 3],\n    ],\n    'other'                      => 4,\n];\n"
+    ],
+    "interactions.php": [
+        "<?php\nnamespace Fixture;\nuse DateTimeImmutable;\nfunction fixture( DateTimeImmutable $date, array $a = [1,2]) { return [\n 'date' => $date->format('c'), 'items' => array_merge($a, [3,4]),\n]; }\n",
+        "<?php\n\ndeclare(strict_types=1);\n\nnamespace Fixture;\n\nuse DateTimeImmutable;\n\nuse function array_merge;\n\nfunction fixture(DateTimeImmutable $date, array $a = [1, 2])\n{\n    return [\n        'date'  => $date->format('c'),\n        'items' => array_merge($a, [3, 4]),\n    ];\n}\n"
+    ]
+}
