@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
+        "php": "~8.3.0 || ~8.4.0 || ~8.5.0 || ~8.6.0",
         "friendsofphp/php-cs-fixer": "^3.90",
         "gordinskiy/line-length-checker": "^0.0.2",
         "pedrotroller/php-cs-custom-fixer": "^2.34"
