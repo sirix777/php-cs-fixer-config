@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added PHP `8.6` support (CI matrix and `composer.json` requirement)
 
+### Changed
+- Raised the `phpunit/phpunit` dev requirement to `^12.5`
+
 ### Removed
 - Dropped PHP `8.2` support; supported versions are now `8.3`, `8.4`, `8.5`, `8.6`
 
